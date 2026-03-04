@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elyndris - Simulateur de Performance SST</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a3a2e;
+            --accent: #2d9e6b;
+            --accent-glow: rgba(45, 158, 107, 0.4);
+            --blue: #7ec7ff;
+            --blue-dark: #3a9de0;
+            --blue-light: #d6eeff;
+            --blue-glow: rgba(126, 199, 255, 0.4);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #e2ffe0;
+            --dark: #0f2419;
+            --text: #1e3a2f;
+            --card-bg: rgba(226, 255, 224, 0.9);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: #e2ffe0;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 var(--blue-glow); } 70% { box-shadow: 0 0 0 10px rgba(126, 199, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(126, 199, 255, 0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* HEADER */
+        header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .logo { font-family: 'Oswald', sans-serif; font-size: 1.6rem; letter-spacing: 1px; color: var(--primary); }
+        .logo span { color: var(--blue); }
+
+        .status {
+            background: var(--blue-light);
+            color: var(--blue-dark);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 1px solid var(--blue);
+            animation: pulse-blue 2s infinite;
+            text-transform: uppercase;
+        }
+
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            position: relative;
+        }
+        nav a::after {
+            content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0;
+            background: linear-gradient(90deg, var(--accent), var(--blue)); transition: var(--transition);
+        }
+        nav a:hover { color: var(--blue-dark); }
+        nav a:hover::after { width: 100%; }
+        nav a.active { color: var(--blue-dark); }
+        nav a.active::after { width: 100%; }
+
+        /* LAYOUT */
+        main { margin-top: 80px; padding: 2rem; max-width: 1300px; margin-left: auto; margin-right: auto; }
+
+        h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        h2::after {
+            content: ''; position: absolute; left: 0; bottom: 0; width: 60px; height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--blue));
+        }
+
+        /* INTRO */
+        .intro-banner {
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 20px 40px rgba(15, 36, 25, 0.3);
+        }
+        .intro-icon { font-size: 4rem; flex-shrink: 0; }
+        .intro-banner h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2rem;
+            color: var(--blue);
+            margin-bottom: 0.5rem;
+        }
+        .intro-banner p { color: #a7d9b8; font-size: 0.95rem; }
+
+        /* GAME AREA GRID */
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        /* PANEL */
+        .panel {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .panel-header {
+            padding: 1rem 1.5rem;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .panel-header.green { background: var(--primary); color: white; }
+        .panel-header.blue { background: var(--blue-dark); color: white; }
+        .panel-header.dark { background: #1e293b; color: white; }
+        .panel-header.gold { background: linear-gradient(135deg, #b45309, #f59e0b); color: white; }
+        .panel-body { padding: 1.5rem; }
+
+        /* YEAR INDICATOR */
+        .year-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--primary);
+            color: white;
+            border-radius: 14px;
+            padding: 1.2rem 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(26, 58, 46, 0.25);
+        }
+        .year-display {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2rem;
+            color: var(--blue);
+        }
+        .year-dots { display: flex; gap: 8px; }
+        .year-dot {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.5);
+            transition: var(--transition);
+        }
+        .year-dot.done { background: var(--accent); border-color: var(--accent); color: white; }
+        .year-dot.current { background: var(--blue); border-color: var(--blue); color: var(--dark); animation: pulse-blue 1.5s infinite; }
+
+        /* TREASURY */
+        .treasury-display {
+            background: linear-gradient(135deg, #0f2419, #1a3a2e);
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-align: center;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .treasury-amount {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3rem;
+            color: var(--blue);
+            display: block;
+            margin: 0.25rem 0;
+        }
+        .treasury-label { font-size: 0.8rem; color: #a7d9b8; text-transform: uppercase; letter-spacing: 1px; }
+        .treasury-bar-wrap { margin-top: 1rem; }
+        .treasury-bar-bg {
+            background: rgba(255,255,255,0.1);
+            border-radius: 50px;
+            height: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .treasury-bar-fill {
+            height: 100%;
+            border-radius: 50px;
+            background: linear-gradient(90deg, var(--accent), var(--blue));
+            transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+        }
+        .treasury-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #a7d9b8;
+            margin-top: 6px;
+        }
+
+        /* ACTION BUTTONS */
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .btn {
+            padding: 0.9rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+        .btn-action {
+            background: linear-gradient(135deg, var(--accent), #1a6e45);
+            color: white;
+            box-shadow: 0 4px 15px rgba(45, 158, 107, 0.3);
+        }
+        .btn-action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(45, 158, 107, 0.4); }
+        .btn-event {
+            background: linear-gradient(135deg, var(--blue-dark), #1a4a7e);
+            color: white;
+            box-shadow: 0 4px 15px rgba(58, 157, 224, 0.3);
+        }
+        .btn-event:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(58, 157, 224, 0.4); }
+        .btn-next {
+            width: 100%;
+            background: linear-gradient(135deg, #b45309, #f59e0b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            margin-bottom: 0.5rem;
+        }
+        .btn-next:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4); }
+        .btn-reset {
+            width: 100%;
+            background: linear-gradient(135deg, #4b5563, #1f2937);
+            color: white;
+        }
+        .btn-reset:hover { transform: translateY(-2px); }
+
+        /* LOG */
+        .log-area {
+            background: #0f1e16;
+            border-radius: 14px;
+            padding: 1.5rem;
+            min-height: 260px;
+            max-height: 340px;
+            overflow-y: auto;
+            font-family: 'Inter', monospace;
+            font-size: 0.85rem;
+            color: #a7d9b8;
+            margin-bottom: 1rem;
+        }
+        .log-area::-webkit-scrollbar { width: 4px; }
+        .log-area::-webkit-scrollbar-track { background: transparent; }
+        .log-area::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+        .log-entry { margin-bottom: 0.6rem; animation: slideIn 0.3s ease; line-height: 1.5; }
+        .log-entry.system { color: #7ec7ff; }
+        .log-entry.good { color: #22c55e; }
+        .log-entry.bad { color: #f87171; }
+        .log-entry.warn { color: #fbbf24; }
+        .log-entry.neutral { color: #94a3b8; }
+        .log-divider { border: none; border-top: 1px solid #1e3a2f; margin: 0.75rem 0; }
+
+        /* MODAL CARD */
+        .modal-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            animation: pop 0.3s ease;
+            position: relative;
+        }
+        .modal-icon { font-size: 3.5rem; text-align: center; margin-bottom: 1rem; }
+        .modal-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.6rem;
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .modal-subtitle { text-align: center; color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }
+        .modal-details {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .modal-details p { margin-bottom: 0.4rem; }
+        .modal-details strong { color: var(--primary); }
+        .modal-cost {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2rem;
+            text-align: center;
+            color: var(--danger);
+            margin-bottom: 1.5rem;
+        }
+        .modal-cost.positive { color: var(--accent); }
+        .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal-btns.single { grid-template-columns: 1fr; }
+        .btn-yes { background: var(--accent); color: white; padding: 0.85rem; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 1rem; transition: var(--transition); }
+        .btn-yes:hover { background: #1a6e45; transform: translateY(-2px); }
+        .btn-no { background: #e2e8f0; color: #475569; padding: 0.85rem; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 1rem; transition: var(--transition); }
+        .btn-no:hover { background: #cbd5e1; }
+
+        /* CARDS IN HAND */
+        .cards-grid { display: grid; gap: 0.75rem; }
+        .card-item {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid var(--accent);
+            font-size: 0.85rem;
+            animation: slideIn 0.4s ease;
+        }
+        .card-item-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .card-item-name { font-weight: 700; color: var(--primary); display: block; }
+        .card-item-meta { color: #64748b; font-size: 0.78rem; }
+        .empty-hand { color: #94a3b8; font-size: 0.85rem; text-align: center; padding: 1rem 0; }
+
+        /* PERF PANEL */
+        .perf-grid { display: grid; gap: 1rem; }
+        .perf-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--light);
+        }
+        .perf-row:last-child { border-bottom: none; }
+        .perf-label { font-size: 0.85rem; color: #64748b; }
+        .perf-value { font-family: 'Oswald', sans-serif; font-size: 1.2rem; color: var(--primary); }
+        .perf-value.green { color: var(--success); }
+        .perf-value.blue { color: var(--blue-dark); }
+        .perf-value.gold { color: #d97706; }
+
+        .roi-banner {
+            background: linear-gradient(135deg, var(--primary), #1a2e3a);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            margin-top: 1rem;
+            color: white;
+        }
+        .roi-number {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            color: var(--blue);
+        }
+        .roi-label { font-size: 0.8rem; color: #a7d9b8; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* END SCREEN */
+        .end-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15, 36, 25, 0.95);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .end-overlay.open { display: flex; }
+        .end-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            animation: pop 0.5s ease;
+        }
+        .end-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .end-subtitle { color: #64748b; margin-bottom: 2rem; }
+        .end-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .end-stat { background: var(--light); border-radius: 12px; padding: 1.25rem; }
+        .end-stat-val { font-family: 'Oswald', sans-serif; font-size: 1.8rem; color: var(--primary); display: block; }
+        .end-stat-label { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+        .verdict {
+            background: var(--primary);
+            color: white;
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .verdict p { color: #a7d9b8; font-size: 0.95rem; line-height: 1.7; }
+        .verdict strong { color: var(--blue); }
+
+        footer {
+            background: linear-gradient(135deg, var(--primary), #1a2e3a);
+            color: #a7d9b8;
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+            border-top: 3px solid var(--blue);
+        }
+        footer p { margin-bottom: 10px; }
+
+        @media screen and (max-width: 900px) {
+            .game-grid { grid-template-columns: 1fr; }
+            .intro-banner { flex-direction: column; text-align: center; }
+            .action-buttons { grid-template-columns: 1fr; }
+            .end-stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header id="header">
+    <div class="logo">ELYNDRIS <span>MONITORING</span></div>
+    <div class="status">🎮 SIMULATEUR DE PERFORMANCE</div>
+    <nav>
+        <ul>
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="affiches.html">Affiches</a></li>
+            <li><a href="simulateur.html" class="active">Simulateur</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <div class="intro-banner">
+        <div class="intro-icon">🏭</div>
+        <div>
+            <h1>Simulateur de Performance SST</h1>
+            <p>Serious Game de gestion d'entreprise sur <strong style="color:var(--blue)">8 tours (1 tour = 1 an)</strong>.
+            Objectif : démontrer que la sécurité au travail est un <strong style="color:var(--blue)">levier de performance financière</strong>.
+            Trésorerie initiale : 100 000 € · Revenu annuel : +50 000 €/an</p>
+        </div>
+    </div>
+
+    <!-- YEAR BAR -->
+    <div class="year-bar">
+        <div>
+            <div style="font-size:0.75rem; color:#a7d9b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">Année en cours</div>
+            <div class="year-display" id="yearDisplay">1 / 8</div>
+        </div>
+        <div class="year-dots" id="yearDots"></div>
+    </div>
+
+    <div class="game-grid">
+        <!-- COLONNE GAUCHE : LOG + ACTIONS -->
+        <div>
+            <!-- LOG -->
+            <div class="panel">
+                <div class="panel-header dark">📜 Journal de Jeu</div>
+                <div class="panel-body" style="padding: 1rem;">
+                    <div class="log-area" id="logArea"></div>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="panel">
+                <div class="panel-header green">🎮 Actions du Joueur</div>
+                <div class="panel-body">
+                    <div class="action-buttons">
+                        <button class="btn btn-action" id="btnAction" onclick="drawActionCard()">
+                            🛡️ Tirer Carte Action
+                        </button>
+                        <button class="btn btn-event" id="btnEvent" onclick="drawEventCard()">
+                            🎲 Tirer Carte Événement
+                        </button>
+                    </div>
+                    <button class="btn btn-next" id="btnNext" onclick="nextYear()">
+                        ⏭️ Passer à l'Année Suivante
+                    </button>
+                    <button class="btn btn-reset" onclick="resetGame()">
+                        🔄 Recommencer la Partie
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLONNE DROITE : STATS + CARTES -->
+        <div>
+            <!-- TRESORERIE -->
+            <div class="panel">
+                <div class="panel-header blue">💰 Trésorerie</div>
+                <div class="panel-body">
+                    <div class="treasury-display">
+                        <span class="treasury-label">Cash disponible</span>
+                        <span class="treasury-amount" id="treasuryAmount">100 000 €</span>
+                        <div class="treasury-bar-wrap">
+                            <div style="font-size:0.75rem; color:#a7d9b8; margin-bottom:6px; font-family:monospace;" id="asciiBar">████████████████ 100 000 €</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center; font-size:0.85rem; color:#64748b; margin-top:0.5rem;">
+                        💵 Revenu prochain tour : <strong style="color:var(--accent)">+ 50 000 €</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARTES EN MAIN -->
+            <div class="panel">
+                <div class="panel-header green">🃏 Cartes Actives (Protections)</div>
+                <div class="panel-body">
+                    <div class="cards-grid" id="cardsGrid">
+                        <div class="empty-hand">Aucune protection active.<br>Tirez une carte Action !</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULATEUR DE PERFORMANCE -->
+            <div class="panel">
+                <div class="panel-header gold">📊 Simulateur de Performance</div>
+                <div class="panel-body">
+                    <div class="perf-grid">
+                        <div class="perf-row">
+                            <span class="perf-label">💸 Investissement prévention</span>
+                            <span class="perf-value blue" id="perfInvest">0 €</span>
+                        </div>
+                        <div class="perf-row">
+                            <span class="perf-label">✅ Coûts accidents ÉVITÉS</span>
+                            <span class="perf-value green" id="perfSaved">0 €</span>
+                        </div>
+                        <div class="perf-row">
+                            <span class="perf-label">❌ Coûts accidents subis</span>
+                            <span class="perf-value" style="color:var(--danger)" id="perfLost">0 €</span>
+                        </div>
+                    </div>
+                    <div class="roi-banner">
+                        <div class="roi-label">ROI Politique Sécurité</div>
+                        <div class="roi-number" id="roiDisplay">—</div>
+                        <div style="font-size:0.75rem; color:#a7d9b8; margin-top:4px;">[Gains Évités / Investissement]</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- MODAL ACTION -->
+<div class="modal-overlay" id="modalAction">
+    <div class="modal-card">
+        <div class="modal-icon" id="modalActionIcon">🛡️</div>
+        <div class="modal-title" id="modalActionTitle">Carte Action</div>
+        <div class="modal-subtitle" id="modalActionSub"></div>
+        <div class="modal-details" id="modalActionDetails"></div>
+        <div class="modal-cost" id="modalActionCost"></div>
+        <div class="modal-btns" id="modalActionBtns">
+            <button class="btn-yes" onclick="acceptAction()">✅ OUI – J'investis</button>
+            <button class="btn-no" onclick="refuseAction()">❌ NON – Je passe</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EVENT -->
+<div class="modal-overlay" id="modalEvent">
+    <div class="modal-card">
+        <div class="modal-icon" id="modalEventIcon">⚠️</div>
+        <div class="modal-title" id="modalEventTitle">Événement</div>
+        <div class="modal-subtitle" id="modalEventSub"></div>
+        <div class="modal-details" id="modalEventDetails"></div>
+        <div class="modal-cost" id="modalEventCost"></div>
+        <div class="modal-btns single">
+            <button class="btn-yes" onclick="closeEventModal()">Continuer →</button>
+        </div>
+    </div>
+</div>
+
+<!-- END SCREEN -->
+<div class="end-overlay" id="endOverlay">
+    <div class="end-card">
+        <div style="font-size:4rem; margin-bottom:1rem;">🏆</div>
+        <div class="end-title">Fin de Partie !</div>
+        <div class="end-subtitle">Résultats après 8 ans de gestion</div>
+        <div class="end-stats">
+            <div class="end-stat">
+                <span class="end-stat-val" id="endTreasury">—</span>
+                <div class="end-stat-label">Trésorerie finale</div>
+            </div>
+            <div class="end-stat">
+                <span class="end-stat-val" id="endInvest">—</span>
+                <div class="end-stat-label">Investi en prévention</div>
+            </div>
+            <div class="end-stat">
+                <span class="end-stat-val" id="endSaved">—</span>
+                <div class="end-stat-label">Accidents évités (€)</div>
+            </div>
+        </div>
+        <div class="verdict" id="verdict"></div>
+        <button class="btn btn-reset" style="width:100%" onclick="resetGame()">🔄 Rejouer</button>
+    </div>
+</div>
+
+<footer>
+    <div style="max-width: 600px; margin: 0 auto;">
+        <p style="font-weight: 700; color: white;">ELYNDRIS MONITORING</p>
+        <p>Challenge INRS 2026 – Simulateur de Performance SST</p>
+        <div style="height: 1px; background: #334155; margin: 20px 0;"></div>
+        <p style="font-size: 0.8rem;">La sécurité n'est pas un coût, c'est un investissement.</p>
+    </div>
+</footer>
+
+<script>
+/* ============================================================
+   DONNÉES DU JEU
+   ============================================================ */
+
+const ACTION_CARDS = [
+    {
+        id: 'secourisme',
+        name: 'Formation Secourisme',
+        icon: '🩺',
+        prob: 2,
+        costPerYear: 5000,
+        duration: 3,       // durée du paiement
+        validYears: 6,     // durée de validité
+        description: 'Formation SST pour vos équipes. Réduit de 50% les coûts de TOUS les accidents non évités.',
+        protects: ['all_reduction'],
+        unique: true
+    },
+    {
+        id: 'gants',
+        name: 'Pack Gants de Protection',
+        icon: '🧤',
+        prob: 2,
+        cost: 3000,
+        validYears: 3,
+        description: 'Protège contre les risques mains (coupures, brûlures, infections). Usage illimité.',
+        protects: ['coupure', 'infection'],
+        unique: false
+    },
+    {
+        id: 'chaussures',
+        name: 'Pack Chaussures de Sécurité',
+        icon: '👟',
+        prob: 2,
+        cost: 4000,
+        validYears: 4,
+        description: 'Protège contre risques pieds, glissades et impacts. Usage illimité.',
+        protects: ['ecrasement', 'glissade', 'collision'],
+        unique: false
+    },
+    {
+        id: 'gardecorps',
+        name: 'Garde-corps & Lignes de Vie',
+        icon: '🏗️',
+        prob: 1,
+        cost: 10000,
+        validYears: 10,
+        description: 'Installation de protections collectives contre les chutes de hauteur. Usage illimité.',
+        protects: ['chute'],
+        unique: true
+    },
+    {
+        id: 'ergonomie',
+        name: 'Postes Ergonomiques',
+        icon: '🪑',
+        prob: 1,
+        cost: 15000,
+        validYears: 8,
+        description: 'Aménagement ergonomique des postes de travail. Prévient les TMS (lumbago, etc.).',
+        protects: ['lumbago'],
+        unique: true
+    },
+    {
+        id: 'rps',
+        name: 'Audit & Plan RPS',
+        icon: '🧠',
+        prob: 1,
+        cost: 8000,
+        validYears: 4,
+        description: 'Audit des risques psychosociaux et plan de prévention. Prévient le burn-out.',
+        protects: ['burnout'],
+        unique: true
+    }
+];
+
+const EVENT_CARDS = [
+    {
+        id: 'chute',
+        name: 'Chute de Hauteur',
+        icon: '🪜',
+        prob: 1,
+        baseCost: 80000,
+        description: 'Accident grave. Un opérateur chute d\'une plateforme.',
+        avoidedBy: ['gardecorps'],
+        partialBy: []
+    },
+    {
+        id: 'ecrasement',
+        name: 'Écrasement du Pied',
+        icon: '🦶',
+        prob: 2,
+        baseCost: 15000,
+        description: 'Fracture suite à la chute d\'un objet lourd.',
+        avoidedBy: ['chaussures'],
+        partialBy: []
+    },
+    {
+        id: 'coupure',
+        name: 'Coupure / Brûlure aux Mains',
+        icon: '✂️',
+        prob: 2,
+        baseCost: 10000,
+        description: 'Soins et arrêt de travail suite à une blessure aux mains.',
+        avoidedBy: ['gants'],
+        partialBy: []
+    },
+    {
+        id: 'glissade',
+        name: 'Glissade sur Sol Mouillé',
+        icon: '💧',
+        prob: 1,
+        baseCost: 8000,
+        description: 'Entorse suite à une glissade (sol mouillé).',
+        avoidedBy: ['chaussures'],
+        partialBy: []
+    },
+    {
+        id: 'lumbago',
+        name: 'Lumbago (Manutention)',
+        icon: '🏋️',
+        prob: 1,
+        baseCost: 25000,
+        description: 'Arrêt long suite à un effort de manutention.',
+        avoidedBy: ['ergonomie'],
+        partialBy: []
+    },
+    {
+        id: 'burnout',
+        name: 'Burn-out d\'un Manager',
+        icon: '🔥',
+        prob: 1,
+        baseCost: 45000,
+        description: 'Désorganisation totale de l\'équipe suite au burn-out d\'un manager.',
+        avoidedBy: ['rps'],
+        partialBy: []
+    },
+    {
+        id: 'collision',
+        name: 'Collision Chariot / Piéton',
+        icon: '🚛',
+        prob: 1,
+        baseCost: 30000,
+        description: 'Traumatisme suite à une collision entre un chariot et un piéton.',
+        avoidedBy: ['chaussures'],
+        partialBy: ['secourisme']
+    },
+    {
+        id: 'infection',
+        name: 'Infection Cutanée',
+        icon: '🧪',
+        prob: 1,
+        baseCost: 12000,
+        description: 'Maladie professionnelle suite à un contact avec des produits chimiques.',
+        avoidedBy: ['gants'],
+        partialBy: []
+    }
+];
+
+/* ============================================================
+   ÉTAT DU JEU
+   ============================================================ */
+let state = {};
+
+function initState() {
+    state = {
+        year: 1,
+        treasury: 100000,
+        cards: [],           // { cardId, yearsLeft, paying (for secourisme) }
+        totalInvested: 0,
+        totalSaved: 0,
+        totalLost: 0,
+        actionsDrawnThisYear: 0,
+        eventDrawnThisYear: false,
+        pendingAction: null,
+        pendingEvent: null
+    };
+}
+
+/* ============================================================
+   UTILITAIRES
+   ============================================================ */
+
+function fmt(n) {
+    return n.toLocaleString('fr-FR') + ' €';
+}
+
+function hasCard(cardId) {
+    return state.cards.some(c => c.cardId === cardId && c.yearsLeft > 0);
+}
+
+function weightedRandom(items, key = 'prob') {
+    const total = items.reduce((s, i) => s + i[key], 0);
+    let r = Math.random() * total;
+    for (const item of items) {
+        r -= item[key];
+        if (r <= 0) return item;
+    }
+    return items[items.length - 1];
+}
+
+/* ============================================================
+   LOG
+   ============================================================ */
+
+function log(msg, type = 'neutral') {
+    const area = document.getElementById('logArea');
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${type}`;
+    entry.innerHTML = msg;
+    area.appendChild(entry);
+    area.scrollTop = area.scrollHeight;
+}
+
+function logDivider() {
+    const area = document.getElementById('logArea');
+    const hr = document.createElement('hr');
+    hr.className = 'log-divider';
+    area.appendChild(hr);
+}
+
+/* ============================================================
+   RENDU
+   ============================================================ */
+
+function renderAll() {
+    renderYear();
+    renderTreasury();
+    renderCards();
+    renderPerf();
+    renderNextBtn();
+}
+
+function requiredActions() {
+    return state.year === 1 ? 3 : 1;
+}
+
+function renderNextBtn() {
+    const btn = document.getElementById('btnNext');
+    const req = requiredActions();
+    const actionsDone = state.actionsDrawnThisYear >= req;
+    const ready = actionsDone && state.eventDrawnThisYear;
+    btn.disabled = !ready;
+    if (!ready) {
+        const missing = [];
+        if (!actionsDone) {
+            const rem = req - state.actionsDrawnThisYear;
+            missing.push(`${rem} carte${rem > 1 ? 's' : ''} Action`);
+        }
+        if (!state.eventDrawnThisYear) missing.push('une carte Événement');
+        btn.title = `Vous devez encore piocher : ${missing.join(' et ')}.`;
+    } else {
+        btn.title = '';
+    }
+}
+
+function renderYear() {
+    document.getElementById('yearDisplay').textContent = `${state.year} / 8`;
+    const dots = document.getElementById('yearDots');
+    dots.innerHTML = '';
+    for (let i = 1; i <= 8; i++) {
+        const d = document.createElement('div');
+        d.className = 'year-dot' + (i < state.year ? ' done' : (i === state.year ? ' current' : ''));
+        d.textContent = i;
+        dots.appendChild(d);
+    }
+}
+
+function renderTreasury() {
+    const t = state.treasury;
+    document.getElementById('treasuryAmount').textContent = fmt(t);
+
+    const maxRef = 300000;
+    const pct = Math.max(0, Math.min(100, (t / maxRef) * 100));
+    const bars = Math.round(pct / 5);
+    const filled = '█'.repeat(bars);
+    const empty = '░'.repeat(20 - bars);
+    document.getElementById('asciiBar').textContent = filled + empty + ' ' + fmt(t);
+}
+
+function renderCards() {
+    const grid = document.getElementById('cardsGrid');
+    const active = state.cards.filter(c => c.yearsLeft > 0);
+    if (active.length === 0) {
+        grid.innerHTML = '<div class="empty-hand">Aucune protection active.<br>Tirez une carte Action !</div>';
+        return;
+    }
+    grid.innerHTML = '';
+    active.forEach(c => {
+        const def = ACTION_CARDS.find(a => a.id === c.cardId);
+        if (!def) return;
+        const item = document.createElement('div');
+        item.className = 'card-item';
+        const paying = def.id === 'secourisme' && c.payingLeft > 0 ? ` · Paiement : ${c.payingLeft} an(s)` : '';
+        item.innerHTML = `
+            <div class="card-item-icon">${def.icon}</div>
+            <div>
+                <span class="card-item-name">${def.name}</span>
+                <span class="card-item-meta">⏳ ${c.yearsLeft} an(s) restant(s)${paying}</span>
+            </div>`;
+        grid.appendChild(item);
+    });
+}
+
+function renderPerf() {
+    document.getElementById('perfInvest').textContent = fmt(state.totalInvested);
+    document.getElementById('perfSaved').textContent = fmt(state.totalSaved);
+    document.getElementById('perfLost').textContent = fmt(state.totalLost);
+
+    if (state.totalInvested > 0) {
+        const roi = Math.round((state.totalSaved / state.totalInvested) * 100);
+        document.getElementById('roiDisplay').textContent = roi + ' %';
+    } else {
+        document.getElementById('roiDisplay').textContent = '—';
+    }
+}
+
+/* ============================================================
+   CARTE ACTION
+   ============================================================ */
+
+function drawActionCard() {
+    const req = requiredActions();
+    if (state.actionsDrawnThisYear >= req) {
+        log(`⚠️ Vous avez déjà tiré ${req} carte${req > 1 ? 's' : ''} Action cette année.`, 'warn');
+        return;
+    }
+
+    // Filtrer les cartes déjà possédées (uniques)
+    const available = ACTION_CARDS.filter(a => {
+        if (a.unique && hasCard(a.id)) return false;
+        return true;
+    });
+
+    if (available.length === 0) {
+        log('✅ Toutes les protections disponibles sont déjà actives !', 'good');
+        state.actionsDrawnThisYear = requiredActions();
+        renderAll();
+        return;
+    }
+
+    const card = weightedRandom(available);
+    state.pendingAction = card;
+
+    // Remplir le modal
+    document.getElementById('modalActionIcon').textContent = card.icon;
+    document.getElementById('modalActionTitle').textContent = card.name;
+    document.getElementById('modalActionSub').textContent = card.description;
+
+    let costText = '';
+    let costDisplay = '';
+    if (card.id === 'secourisme') {
+        costText = `<p><strong>Coût :</strong> 5 000 €/an pendant 3 ans</p><p><strong>Validité :</strong> 6 ans</p><p><strong>Effet :</strong> -50% sur TOUS les accidents non évités</p>`;
+        costDisplay = '- 5 000 €/an × 3 ans';
+    } else {
+        costText = `<p><strong>Coût :</strong> ${fmt(card.cost)}</p><p><strong>Validité :</strong> ${card.validYears} an(s)</p>`;
+        costDisplay = '- ' + fmt(card.cost);
+    }
+    document.getElementById('modalActionDetails').innerHTML = costText;
+    document.getElementById('modalActionCost').textContent = costDisplay;
+    document.getElementById('modalActionCost').className = 'modal-cost';
+
+    document.getElementById('modalAction').classList.add('open');
+}
+
+function acceptAction() {
+    const card = state.pendingAction;
+    if (!card) return;
+
+    let cost = 0;
+    if (card.id === 'secourisme') {
+        cost = 5000;
+    } else {
+        cost = card.cost;
+    }
+
+    if (state.treasury < cost) {
+        log(`❌ Fonds insuffisants pour ${card.name} (${fmt(cost)} requis).`, 'bad');
+        document.getElementById('modalAction').classList.remove('open');
+        state.actionDrawnThisYear = true;
+        return;
+    }
+
+    state.treasury -= cost;
+    state.totalInvested += cost;
+
+    // Ajouter ou renouveler la carte
+    const existing = state.cards.find(c => c.cardId === card.id);
+    if (existing) {
+        existing.yearsLeft = card.validYears;
+        if (card.id === 'secourisme') existing.payingLeft = 3;
+    } else {
+        state.cards.push({
+            cardId: card.id,
+            yearsLeft: card.validYears,
+            payingLeft: card.id === 'secourisme' ? 3 : 0
+        });
+    }
+
+    log(`✅ ${card.icon} <strong>${card.name}</strong> acquise ! (${fmt(cost)} débité)`, 'good');
+    state.actionsDrawnThisYear++;
+    const req = requiredActions();
+    if (state.actionsDrawnThisYear < req) {
+        log(`💡 Année 1 : piochage ${state.actionsDrawnThisYear}/${req} — Tirez encore une carte Action !`, 'neutral');
+    }
+    document.getElementById('modalAction').classList.remove('open');
+    state.pendingAction = null;
+    renderAll();
+}
+
+function refuseAction() {
+    const card = state.pendingAction;
+    if (card) log(`⏩ Carte ${card.icon} ${card.name} refusée.`, 'neutral');
+    state.actionsDrawnThisYear++;
+    const req = requiredActions();
+    if (state.actionsDrawnThisYear < req) {
+        log(`💡 Année 1 : piochage ${state.actionsDrawnThisYear}/${req} — Tirez encore une carte Action !`, 'neutral');
+    }
+    document.getElementById('modalAction').classList.remove('open');
+    state.pendingAction = null;
+    renderAll();
+}
+
+/* ============================================================
+   CARTE ÉVÉNEMENT
+   ============================================================ */
+
+function drawEventCard() {
+    if (state.eventDrawnThisYear) {
+        log('⚠️ Vous avez déjà tiré une carte Événement cette année.', 'warn');
+        return;
+    }
+
+    const event = weightedRandom(EVENT_CARDS);
+    state.pendingEvent = event;
+
+    // Calcul du coût réel
+    let finalCost = event.baseCost;
+    let avoided = false;
+    let partial = false;
+    let resolution = '';
+
+    // Vérifier si totalement évité
+    if (event.avoidedBy.some(id => hasCard(id))) {
+        avoided = true;
+        finalCost = 0;
+        const protector = event.avoidedBy.find(id => hasCard(id));
+        const protCard = ACTION_CARDS.find(a => a.id === protector);
+        resolution = `✅ <strong>Accident évité !</strong> Votre ${protCard.icon} ${protCard.name} a protégé l'équipe.`;
+        state.totalSaved += event.baseCost;
+    } else {
+        // Réduction secourisme si applicable
+        if (hasCard('secourisme')) {
+            partial = true;
+            finalCost = Math.round(event.baseCost * 0.5);
+            resolution = `🩺 <strong>Formation Secourisme</strong> : coût réduit de 50% (${fmt(event.baseCost)} → ${fmt(finalCost)})`;
+            state.totalSaved += event.baseCost - finalCost;
+        }
+
+        // Vérifier réduction partielle (collision + chaussures)
+        if (event.id === 'collision' && hasCard('chaussures') && !avoided) {
+            if (!partial) {
+                finalCost = Math.round(event.baseCost * 0.5);
+                resolution = `👟 <strong>Chaussures de Sécurité</strong> : impact réduit (${fmt(event.baseCost)} → ${fmt(finalCost)})`;
+                state.totalSaved += event.baseCost - finalCost;
+            }
+        }
+
+        state.treasury -= finalCost;
+        state.totalLost += finalCost;
+    }
+
+    // Préparer le modal
+    document.getElementById('modalEventIcon').textContent = event.icon;
+    document.getElementById('modalEventTitle').textContent = event.name;
+    document.getElementById('modalEventSub').textContent = event.description;
+
+    let details = `<p><strong>Coût potentiel :</strong> ${fmt(event.baseCost)}</p>`;
+    if (avoided) {
+        details += `<p style="color:var(--success); margin-top:8px;">${resolution}</p>`;
+    } else if (partial) {
+        details += `<p style="color:var(--warning); margin-top:8px;">${resolution}</p>`;
+    } else {
+        details += `<p style="margin-top:8px; color:#64748b;">Aucune protection active pour cet accident.</p>`;
+    }
+    document.getElementById('modalEventDetails').innerHTML = details;
+
+    const costEl = document.getElementById('modalEventCost');
+    if (avoided) {
+        costEl.textContent = '0 € (Accident évité !)';
+        costEl.className = 'modal-cost positive';
+    } else {
+        costEl.textContent = '- ' + fmt(finalCost);
+        costEl.className = 'modal-cost';
+    }
+
+    document.getElementById('modalEvent').classList.add('open');
+
+    // Log
+    if (avoided) {
+        log(`🎲 Événement : ${event.icon} <strong>${event.name}</strong> → ÉVITÉ ! (Économie : ${fmt(event.baseCost)})`, 'good');
+    } else if (partial) {
+        log(`🎲 Événement : ${event.icon} <strong>${event.name}</strong> → Coût réduit : ${fmt(finalCost)} (économie : ${fmt(event.baseCost - finalCost)})`, 'warn');
+    } else {
+        log(`🎲 Événement : ${event.icon} <strong>${event.name}</strong> → Coût : -${fmt(finalCost)} 😢`, 'bad');
+    }
+
+    state.eventDrawnThisYear = true;
+    renderAll();
+}
+
+function closeEventModal() {
+    document.getElementById('modalEvent').classList.remove('open');
+    state.pendingEvent = null;
+}
+
+/* ============================================================
+   PASSAGE D'ANNÉE
+   ============================================================ */
+
+function nextYear() {
+    const req = requiredActions();
+    const actionsDone = state.actionsDrawnThisYear >= req;
+    if (!actionsDone || !state.eventDrawnThisYear) {
+        const missing = [];
+        if (!actionsDone) {
+            const rem = req - state.actionsDrawnThisYear;
+            missing.push(`${rem} carte${rem > 1 ? 's' : ''} Action 🃏`);
+        }
+        if (!state.eventDrawnThisYear) missing.push('une carte Événement 🎲');
+        log(`⛔ Vous devez piocher ${missing.join(' et ')} avant de passer à l'année suivante.`, 'bad');
+        return;
+    }
+    if (state.year >= 8) {
+        showEndScreen();
+        return;
+    }
+
+    logDivider();
+
+    // Créditer revenu annuel
+    state.treasury += 50000;
+    log(`💵 <strong>Début Année ${state.year + 1}</strong> – Revenu crédité : +50 000 €`, 'system');
+
+    // Décrémenter cartes
+    state.cards.forEach(c => {
+        c.yearsLeft = Math.max(0, c.yearsLeft - 1);
+        if (c.cardId === 'secourisme' && c.payingLeft > 0) {
+            c.payingLeft--;
+            if (c.payingLeft > 0) {
+                state.treasury -= 5000;
+                state.totalInvested += 5000;
+                log(`💸 Paiement Formation Secourisme : -5 000 €`, 'warn');
+            }
+        }
+        if (c.yearsLeft === 0) {
+            const def = ACTION_CARDS.find(a => a.id === c.cardId);
+            if (def) log(`⚠️ ${def.icon} <strong>${def.name}</strong> a expiré !`, 'warn');
+        }
+    });
+    state.cards = state.cards.filter(c => c.yearsLeft > 0);
+
+    state.year++;
+    state.actionsDrawnThisYear = 0;
+    state.eventDrawnThisYear = false;
+
+    renderAll();
+
+    if (state.year === 8) {
+        document.getElementById('btnNext').textContent = '🏁 Voir les Résultats Finaux';
+    }
+}
+
+/* ============================================================
+   FIN DE PARTIE
+   ============================================================ */
+
+function showEndScreen() {
+    document.getElementById('endTreasury').textContent = fmt(state.treasury);
+    document.getElementById('endInvest').textContent = fmt(state.totalInvested);
+    document.getElementById('endSaved').textContent = fmt(state.totalSaved);
+
+    let roi = state.totalInvested > 0 ? Math.round((state.totalSaved / state.totalInvested) * 100) : 0;
+    let verdictMsg = '';
+
+    if (state.totalSaved > state.totalInvested * 2) {
+        verdictMsg = `🏆 <strong style="color:var(--blue)">Résultat Exceptionnel !</strong><br>
+        <p>Vous avez investi <strong>${fmt(state.totalInvested)}</strong> en prévention et évité <strong>${fmt(state.totalSaved)}</strong> de pertes.
+        Votre ROI de <strong>${roi}%</strong> prouve par A+B que la sécurité est un puissant levier de performance financière.
+        La sécurité n'est pas un coût, c'est un <strong>investissement à fort rendement</strong>.</p>`;
+    } else if (state.totalSaved > state.totalInvested) {
+        verdictMsg = `✅ <strong style="color:var(--blue)">Bonne Gestion !</strong><br>
+        <p>Avec un ROI de <strong>${roi}%</strong>, votre politique de prévention a été rentable.
+        Investi : <strong>${fmt(state.totalInvested)}</strong> · Économisé : <strong>${fmt(state.totalSaved)}</strong>.</p>`;
+    } else if (state.totalInvested === 0) {
+        verdictMsg = `💀 <strong style="color:#f87171">Aucune Prévention !</strong><br>
+        <p>Vous n'avez investi que <strong>${fmt(state.totalInvested)}</strong> en sécurité.
+        Les accidents vous ont coûté <strong>${fmt(state.totalLost)}</strong>.
+        La prévention aurait pu tout changer.</p>`;
+    } else {
+        verdictMsg = `⚠️ <strong style="color:var(--warning)">Marge de Progression</strong><br>
+        <p>ROI de <strong>${roi}%</strong>. Avec de meilleures protections, vous auriez pu économiser davantage.
+        Accidents subis : <strong>${fmt(state.totalLost)}</strong>. Retentez avec une stratégie plus offensive !</p>`;
+    }
+
+    document.getElementById('verdict').innerHTML = verdictMsg;
+    document.getElementById('endOverlay').classList.add('open');
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+
+function resetGame() {
+    document.getElementById('endOverlay').classList.remove('open');
+    document.getElementById('modalAction').classList.remove('open');
+    document.getElementById('modalEvent').classList.remove('open');
+    document.getElementById('logArea').innerHTML = '';
+    document.getElementById('btnNext').textContent = '⏭️ Passer à l\'Année Suivante';
+    initState();
+    renderAll();
+    log('🎮 <strong>Nouvelle partie lancée !</strong> Trésorerie : 100 000 € · 8 ans devant vous.', 'system');
+    log('💡 <strong>Année 1 :</strong> vous devez piocher <strong>3 cartes Action</strong> ET une carte Événement. Les années suivantes : 1 carte Action + 1 carte Événement.', 'neutral');
+    logDivider();
+    log(`📅 <strong>ANNÉE 1 / 8</strong> – Revenu initial : +50 000 € crédité.`, 'system');
+    // Créditer le revenu de l'année 1 dès le départ
+    state.treasury += 50000;
+    renderAll();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+
+window.addEventListener('load', () => {
+    initState();
+    renderAll();
+    log('🎮 <strong>Bienvenue dans le Simulateur de Performance SST !</strong>', 'system');
+    log('Trésorerie de départ : 100 000 € + 50 000 € de revenu annuel.', 'neutral');
+    log('💡 <strong>Année 1 :</strong> vous devez piocher <strong>3 cartes Action</strong> ET une carte Événement. Les années suivantes : 1 carte Action + 1 carte Événement.', 'neutral');
+    logDivider();
+    log(`📅 <strong>ANNÉE 1 / 8</strong> – Revenu crédité : +50 000 €`, 'system');
+    state.treasury += 50000;
+    renderAll();
+});
+</script>
+
+</body>
+</html>
