@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elyndris - Affiches de Prévention</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a3a2e;
+            --accent: #2d9e6b;
+            --accent-glow: rgba(45, 158, 107, 0.4);
+            --blue: #7ec7ff;
+            --blue-dark: #3a9de0;
+            --blue-light: #d6eeff;
+            --blue-glow: rgba(126, 199, 255, 0.4);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --light: #e2ffe0;
+            --dark: #0f2419;
+            --text: #1e3a2f;
+            --card-bg: rgba(226, 255, 224, 0.9);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: #e2ffe0;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 var(--blue-glow); } 70% { box-shadow: 0 0 0 10px rgba(126, 199, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(126, 199, 255, 0); } }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: var(--transition); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* HEADER */
+        header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .logo { font-family: 'Oswald', sans-serif; font-size: 1.6rem; letter-spacing: 1px; color: var(--primary); text-decoration: none; }
+        .logo span { color: var(--blue); }
+
+        .status {
+            background: var(--blue-light);
+            color: var(--blue-dark);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 1px solid var(--blue);
+            animation: pulse-blue 2s infinite;
+            text-transform: uppercase;
+        }
+
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            position: relative;
+        }
+        nav a::after {
+            content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0;
+            background: linear-gradient(90deg, var(--accent), var(--blue)); transition: var(--transition);
+        }
+        nav a:hover { color: var(--blue-dark); }
+        nav a:hover::after { width: 100%; }
+        nav a.active { color: var(--blue-dark); }
+        nav a.active::after { width: 100%; }
+
+        /* MAIN */
+        main { margin-top: 100px; padding: 2rem; max-width: 1200px; margin-left: auto; margin-right: auto; }
+
+        section { margin-bottom: 6rem; scroll-margin-top: 120px; }
+
+        h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        h2::after {
+            content: ''; position: absolute; left: 0; bottom: 0; width: 60px; height: 4px; background: linear-gradient(90deg, var(--accent), var(--blue));
+        }
+
+        .section-subtitle {
+            color: #4a7a5e;
+            margin-bottom: 3rem;
+            font-size: 1rem;
+        }
+
+        /* GALERIE AFFICHES */
+        .affiches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+
+        /* Ratio A4 : 210 x 297 mm → ~1:1.414 */
+        .affiche-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        .affiche-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(126, 199, 255, 0.25);
+        }
+
+        .affiche-img-wrapper {
+            position: relative;
+            width: 100%;
+            /* Ratio A4 : hauteur = largeur × (297/210) */
+            padding-top: calc(100% * 297 / 210);
+            background: #f1f5f9;
+            overflow: hidden;
+        }
+
+        .affiche-img-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .affiche-info {
+            padding: 1.25rem 1.5rem;
+            border-top: 3px solid var(--blue-light);
+        }
+
+        .affiche-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .affiche-meta {
+            font-size: 0.8rem;
+            color: #6b8f79;
+        }
+
+        .affiche-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 0.75rem;
+            padding: 6px 14px;
+            background: var(--blue-light);
+            color: var(--blue-dark);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .affiche-download:hover {
+            background: var(--blue);
+            color: white;
+        }
+
+        /* FOOTER */
+        footer {
+            background: linear-gradient(135deg, var(--primary), #1a2e3a);
+            color: #a7d9b8;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-top: 6rem;
+            border-top: 3px solid var(--blue);
+        }
+        footer p { margin-bottom: 10px; }
+
+        @media screen and (max-width: 900px) {
+            .affiches-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+        }
+        @media screen and (max-width: 600px) {
+            .affiches-grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header id="header">
+    <a href="index.html" class="logo">ELYNDRIS <span>MONITORING</span></a>
+    <div class="status">⚠ ALERTE STRATÉGIQUE : FLYGENIX</div>
+    <nav>
+        <ul>
+            <li><a href="index.html#constat">Constat</a></li>
+            <li><a href="index.html#diagnostic">Diagnostic</a></li>
+            <li><a href="index.html#plan">Plan</a></li>
+            <li><a href="affiches.html" class="active">Affiches</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <section class="reveal">
+        <h2>Affiches de Prévention</h2>
+        <p class="section-subtitle">Supports visuels au format A4 — à afficher dans les espaces de travail Flygenix.</p>
+
+        <div class="affiches-grid">
+
+            <!-- Affiche 1 -->
+            <div class="affiche-card reveal">
+                <div class="affiche-img-wrapper">
+                    <img src="Affiche_cool.png" alt="Affiche de prévention SST">
+                </div>
+                <div class="affiche-info">
+                    <p class="affiche-title">Affiche Prévention SST</p>
+                    <p class="affiche-meta">Format A4 · PNG</p>
+                    <a href="Affiche_cool.png" download class="affiche-download">
+                        ↓ Télécharger
+                    </a>
+                </div>
+            </div>
+
+            <div class="affiche-card reveal">
+                <div class="affiche-img-wrapper">
+                    <img src="Affiche_cool1.png" alt="Affiche de prévention SST">
+                </div>
+                <div class="affiche-info">
+                    <p class="affiche-title">Affiche Prévention SST</p>
+                    <p class="affiche-meta">Format A4 · PNG</p>
+                    <a href="Affiche_cool.png" download class="affiche-download">
+                        ↓ Télécharger
+                    </a>
+                </div>
+            </div>
+
+            <div class="affiche-card reveal">
+                <div class="affiche-img-wrapper">
+                    <img src="Affiche_cool2.png" alt="Affiche de prévention SST">
+                </div>
+                <div class="affiche-info">
+                    <p class="affiche-title">Affiche Prévention SST</p>
+                    <p class="affiche-meta">Format A4 · PNG</p>
+                    <a href="Affiche_cool.png" download class="affiche-download">
+                        ↓ Télécharger
+                    </a>
+                </div>
+            </div>
+
+            <!-- Les prochaines affiches seront ajoutées ici -->
+
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div style="max-width: 600px; margin: 0 auto;">
+        <p style="font-weight: 700; color: white;">ELYNDRIS MONITORING</p>
+        <p>Challenge INRS 2026 - Rapport Stratégique de Sécurité</p>
+        <div style="height: 1px; background: #334155; margin: 20px 0;"></div>
+        <p style="font-size: 0.8rem;">Propulsé par une vision de zéro accident.</p>
+    </div>
+</footer>
+
+<script>
+    // Reveal animations on scroll
+    const observerOptions = { threshold: 0.1 };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, observerOptions);
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+        const header = document.getElementById('header');
+        if (window.scrollY > 50) {
+            header.style.padding = '0.5rem 2rem';
+            header.style.background = 'rgba(255, 255, 255, 0.95)';
+        } else {
+            header.style.padding = '0.75rem 2rem';
+            header.style.background = 'rgba(255, 255, 255, 0.85)';
+        }
+    });
+</script>
+
+</body>
+</html>

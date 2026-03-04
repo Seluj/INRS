@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elyndris - Dashboard de Crise SST</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a3a2e;
+            --accent: #2d9e6b;
+            --accent-glow: rgba(45, 158, 107, 0.4);
+            --blue: #7ec7ff;
+            --blue-dark: #3a9de0;
+            --blue-light: #d6eeff;
+            --blue-glow: rgba(126, 199, 255, 0.4);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --light: #e2ffe0;
+            --dark: #0f2419;
+            --text: #1e3a2f;
+            --card-bg: rgba(226, 255, 224, 0.9);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
+
+        body { 
+            background-color: #e2ffe0; 
+            color: var(--text); 
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 var(--accent-glow); } 70% { box-shadow: 0 0 0 10px rgba(45, 158, 107, 0); } 100% { box-shadow: 0 0 0 0 rgba(45, 158, 107, 0); } }
+        @keyframes pulse-blue { 0% { box-shadow: 0 0 0 0 var(--blue-glow); } 70% { box-shadow: 0 0 0 10px rgba(126, 199, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(126, 199, 255, 0); } }
+        
+        .reveal { opacity: 0; transform: translateY(30px); transition: var(--transition); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* HEADER */
+        header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .logo { font-family: 'Oswald', sans-serif; font-size: 1.6rem; letter-spacing: 1px; color: var(--primary); }
+        .logo span { color: var(--blue); }
+        
+        .status { 
+            background: var(--blue-light); 
+            color: var(--blue-dark); 
+            padding: 8px 18px; 
+            border-radius: 50px; 
+            font-weight: 700; 
+            font-size: 0.85rem; 
+            border: 1px solid var(--blue);
+            animation: pulse-blue 2s infinite;
+            text-transform: uppercase;
+        }
+
+        nav ul { display: flex; list-style: none; gap: 2rem; }
+        nav a { 
+            text-decoration: none; 
+            color: var(--dark); 
+            font-weight: 600; 
+            font-size: 0.95rem;
+            transition: var(--transition); 
+            position: relative;
+        }
+        nav a::after {
+            content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0;
+            background: linear-gradient(90deg, var(--accent), var(--blue)); transition: var(--transition);
+        }
+        nav a:hover { color: var(--blue-dark); }
+        nav a:hover::after { width: 100%; }
+
+        /* MAIN CONTAINER */
+        main { margin-top: 100px; padding: 2rem; max-width: 1200px; margin-left: auto; margin-right: auto; }
+
+        section { margin-bottom: 6rem; scroll-margin-top: 120px; }
+        h2 { 
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem; 
+            margin-bottom: 2rem; 
+            color: var(--primary); 
+            text-transform: uppercase;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        h2::after {
+            content: ''; position: absolute; left: 0; bottom: 0; width: 60px; height: 4px; background: linear-gradient(90deg, var(--accent), var(--blue));
+        }
+
+        /* HERO / ALERT */
+        .hero-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; }
+        .alert-card { 
+            background: white; 
+            padding: 2.5rem; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            border-left: 6px solid var(--blue);
+        }
+        .alert-card h3 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--dark); }
+        
+        .stat-card { 
+            background: var(--primary); 
+            color: white; 
+            padding: 2.5rem; 
+            border-radius: 16px; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+            transition: transform 0.4s ease;
+        }
+        .stat-card:hover { transform: scale(1.02); }
+        .big-number { font-family: 'Oswald', sans-serif; font-size: 5rem; font-weight: 700; color: var(--blue); line-height: 1; }
+        .stat-label { font-size: 1.2rem; font-weight: 500; margin-top: 15px; color: #a7d9b8; }
+
+        /* DIAGNOSTIC (Q3) */
+        .diag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        .diag-item { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
+            transition: var(--transition); 
+            border-bottom: 4px solid transparent;
+        }
+        .diag-item:hover { 
+            transform: translateY(-10px); 
+            box-shadow: 0 20px 40px rgba(126, 199, 255, 0.15); 
+            border-bottom: 4px solid var(--blue);
+        }
+        .diag-icon { font-size: 3rem; margin-bottom: 15px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        .diag-title { font-weight: 700; font-size: 1.4rem; margin-bottom: 15px; color: var(--dark); }
+
+        /* PLAN D'ACTION (Q4) */
+        .timeline { position: relative; max-width: 1000px; margin: 40px auto; }
+        .timeline::after { content: ''; position: absolute; width: 4px; background: #a8e6a0; top: 0; bottom: 0; left: 50%; margin-left: -2px; border-radius: 2px; }
+        
+        .container { padding: 10px 50px; position: relative; width: 50%; box-sizing: border-box; }
+        .left { left: 0; text-align: right; }
+        .right { left: 50%; text-align: left; }
+        
+        .container::after {
+            content: ''; position: absolute; width: 24px; height: 24px; right: -12px; top: 20px;
+            background: white; border: 4px solid var(--accent); border-radius: 50%; z-index: 1;
+        }
+        .right::after { left: -12px; }
+        
+        .content { 
+            padding: 25px 35px; 
+            background: white; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            transition: var(--transition);
+        }
+        .content:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        
+        .badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; margin-bottom: 15px; letter-spacing: 0.5px; }
+        .badge-red { background: #fde8e8; color: #b91c1c; }
+        .badge-orange { background: #fff3cd; color: #92400e; }
+        .badge-green { background: #c8f5c4; color: #166534; }
+        .badge-blue { background: var(--blue-light); color: var(--blue-dark); }
+
+        /* FOOTER */
+        footer { 
+            background: linear-gradient(135deg, var(--primary), #1a2e3a); 
+            color: #a7d9b8; 
+            text-align: center; 
+            padding: 4rem 2rem; 
+            margin-top: 6rem;
+            border-top: 3px solid var(--blue);
+        }
+        footer p { margin-bottom: 10px; }
+
+        @media screen and (max-width: 900px) {
+            .hero-grid { grid-template-columns: 1fr; }
+            .timeline::after { left: 31px; }
+            .container { width: 100%; padding-left: 70px; padding-right: 25px; text-align: left; }
+            .container::after { left: 19px; }
+            .right { left: 0%; }
+        }
+    </style>
+</head>
+<body>
+
+<header id="header">
+    <div class="logo">ELYNDRIS <span>MONITORING</span></div>
+    <div class="status">⚠ ALERTE STRATÉGIQUE : FLYGENIX</div>
+    <nav>
+        <ul>
+            <li><a href="#constat">Constat</a></li>
+            <li><a href="#diagnostic">Diagnostic</a></li>
+            <li><a href="#plan">Plan</a></li>
+            <li><a href="affiches.html">Affiches</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <section id="constat" class="reveal">
+        <h2>L'Urgence en Chiffres</h2>
+        <div class="hero-grid">
+            <div class="alert-card">
+                <h3>Le paradoxe mortel</h3>
+                <p>La fréquence des accidents semble stable, mais leur <strong>gravité explose</strong>. Nous ne voyons pas la réalité du terrain.</p>
+                <div style="margin-top: 20px; display: grid; gap: 15px;">
+                    <div style="background: #d4f7d2; padding: 15px; border-radius: 10px; border-left: 4px solid var(--accent);">
+                        <strong>Impact Business :</strong> Impossibilité d'obtenir le label RSE exigé par Flygenix pour tripler le CA (100M€ > 300M€).
+                    </div>
+                    <div style="background: #d4f7d2; padding: 15px; border-radius: 10px; border-left: 4px solid var(--primary);">
+                        <strong>Perte Capital Humain :</strong> Départ d'experts clés (Ex: C. Blini) pour inaptitude.
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="big-number" data-target="6.7">0</span>
+                <span class="stat-label">Explosion de la gravité (Jours d'arrêt)</span>
+                <div style="margin-top:20px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
+                    <small>21 jours (2020) ➔ <strong>141 jours (2025)</strong></small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="diagnostic" class="reveal">
+        <h2>Pourquoi ça casse ?</h2>
+        <div class="diag-grid">
+            <div class="diag-item">
+                <div class="diag-title">La fracture managériale</div>
+                <p>La sécurité s'arrête à la porte de l'atelier. Conflit ouvert : refus de libérer les nouveaux pour la formation.</p>
+                <p style="margin-top:15px; color:var(--accent); font-weight:700;">⚠ "Chair à canon" sans codes de survie.</p>
+            </div>
+            <div class="diag-item">
+                <div class="diag-title">Les impasses techniques</div>
+                <p>EPI incompatibles avec la précision. L'opérateur doit choisir entre travailler ou se protéger.</p>
+                <p style="margin-top:15px; color:var(--accent); font-weight:700;">⚠ 3 écrasements de doigts en 2025.</p>
+            </div>
+            <div class="diag-item">
+                <div class="diag-title">L'effet domino</div>
+                <p>Soin du symptôme (TMS) sans gérer les flux, créant de nouveaux risques de collision.</p>
+                <p style="margin-top:15px; color:var(--accent); font-weight:700;">⚠ Prévention palliative vs curative.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="plan" class="reveal">
+        <h2>Plan de Bataille</h2>
+        <div class="timeline">
+            
+            <div class="container left reveal">
+                <div class="content">
+                    <span class="badge badge-red">Mois 0-3 : URGENCE VITALE</span>
+                    <h3 style="margin-bottom: 10px;">Hémostase & Conformité</h3>
+                    <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">Cible : Risque mortel & Burnout Maintenance</p>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 8px;">🛑 Stopper l'hémorragie des heures supp.</li>
+                        <li style="margin-bottom: 8px;">🔒 Cadenassage physique inviolable (LOTO)</li>
+                        <li style="margin-bottom: 8px;">🚶 Séparation physique Piétons / Engins</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="container right reveal">
+                <div class="content">
+                    <span class="badge badge-orange">Mois 3-6 : TECHNIQUE</span>
+                    <h3 style="margin-bottom: 10px;">Chirurgie du Poste</h3>
+                    <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">Cible : Éradiquer les TMS à la source</p>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 8px;">🔄 Cabines : Positionneurs rotatifs</li>
+                        <li style="margin-bottom: 8px;">🦾 Bras zéro-gravité (port de charge)</li>
+                        <li style="margin-bottom: 8px;">⏱️ Rotation stricte (max 4h rivetage)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="container left reveal">
+                <div class="content">
+                    <span class="badge badge-green">Long Terme : CULTURE</span>
+                    <h3 style="margin-bottom: 10px;">Rééducation & QVT</h3>
+                    <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">Cible : Prévention durable</p>
+                    <ul style="list-style: none; text-align: left;">
+                        <li style="margin-bottom: 8px;">📣 Référents "Presque-Accidents"</li>
+                        <li style="margin-bottom: 8px;">🪑 Bureaux assis-debout & Ergonomie</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div style="max-width: 600px; margin: 0 auto;">
+        <p style="font-weight: 700; color: white;">ELYNDRIS MONITORING</p>
+        <p>Challenge INRS 2026 - Rapport Stratégique de Sécurité</p>
+        <div style="height: 1px; background: #334155; margin: 20px 0;"></div>
+        <p style="font-size: 0.8rem;">Propulsé par une vision de zéro accident.</p>
+    </div>
+</footer>
+
+<script>
+    // Reveal animations on scroll
+    const observerOptions = {
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                
+                // If it's the stat card, start the counter
+                const countElement = entry.target.querySelector('.big-number');
+                if (countElement && !countElement.classList.contains('counted')) {
+                    startCounter(countElement);
+                }
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Number Counter Animation
+    function startCounter(el) {
+        const target = parseFloat(el.getAttribute('data-target'));
+        const duration = 2000;
+        const start = 0;
+        const step = (timestamp) => {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const current = (progress * target).toFixed(1);
+            el.innerText = 'x ' + current;
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                el.classList.add('counted');
+            }
+        };
+        let startTime = null;
+        window.requestAnimationFrame(step);
+    }
+
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+        const header = document.getElementById('header');
+        if (window.scrollY > 50) {
+            header.style.padding = '0.5rem 2rem';
+            header.style.background = 'rgba(255, 255, 255, 0.95)';
+        } else {
+            header.style.padding = '0.75rem 2rem';
+            header.style.background = 'rgba(255, 255, 255, 0.85)';
+        }
+    });
+</script>
+
+</body>
+</html>
