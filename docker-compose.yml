@@ -1,6 +1,22 @@
+version: '3.8'
+
 services:
   web:
-    build: .
+    # Option 1 : On continue d'utiliser votre Dockerfile
+    # build: .
+    # Option 2 : On peut aussi utiliser l'image directement (plus simple si pas de config complexe)
+    image: nginx:alpine
+    
+    container_name: inrs_backend
+    
     ports:
+      # Port Extérieur (Serveur) : Port Intérieur (Docker Nginx par défaut = 80)
       - "8092:80"
+    
+    volumes:
+      # C'EST ICI QUE LA MAGIE OPÈRE :
+      # On mappe le dossier courant (.) vers le dossier HTML de Nginx dans le conteneur.
+      # Ainsi, quand vous modifiez un fichier sur le serveur, il change DANS le docker instantanément.
+      - ./:/usr/share/nginx/html
+
     restart: unless-stopped
