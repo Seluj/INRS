@@ -262,6 +262,125 @@
             nav a { font-size: 1.3rem; }
             main { margin-top: 80px; padding: 1.2rem; }
         }
+
+        /* MOBILE NAV */
+        @media screen and (max-width: 768px) {
+            /* Header et navigation */
+            header { padding: 0.5rem 1rem; }
+            .status { display: none; }
+            .logo { font-size: 1.25rem; }
+            .hamburger { display: flex; }
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 75%;
+                max-width: 300px;
+                height: 100vh;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(10px);
+                box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1050;
+            }
+            nav.open { right: 0; }
+            nav ul {
+                flex-direction: column;
+                gap: 2rem;
+                align-items: center;
+            }
+            nav a { font-size: 1.1rem; }
+            main { margin-top: 70px; padding: 1rem; }
+
+            /* Intro */
+            .intro-banner { padding: 1.25rem; gap: 1rem; border-radius: 14px; }
+            .intro-icon { font-size: 2.4rem; }
+            .intro-banner h1 { font-size: 1.35rem; }
+            .intro-banner p { font-size: 0.9rem; }
+
+            /* Grille et panneaux */
+            .game-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .panel-header { padding: 0.8rem 1rem; font-size: 1rem; }
+            .panel-body { padding: 1rem; }
+
+            /* Barre d'année */
+            .year-bar { padding: 0.9rem 1.2rem; }
+            .year-display { font-size: 1.45rem; }
+            .year-dots { gap: 6px; }
+            .year-dot { width: 22px; height: 22px; font-size: 0.65rem; }
+
+            /* Trésorerie */
+            .treasury-display { padding: 1rem; }
+            .treasury-amount { font-size: 2.1rem; }
+            .treasury-bar-bg { height: 10px; }
+            .treasury-bar-label { font-size: 0.7rem; }
+
+            /* Boutons & actions */
+            .action-buttons { grid-template-columns: 1fr; gap: 0.75rem; }
+            .btn { padding: 0.75rem 1rem; font-size: 0.9rem; border-radius: 10px; }
+            .btn-next, .btn-reset { margin-bottom: 0.5rem; }
+
+            /* Zone de log */
+            .log-area { padding: 1rem; min-height: 200px; max-height: 260px; font-size: 0.8rem; }
+
+            /* Modales */
+            .modal-card { padding: 1.5rem; width: 92%; max-width: 420px; }
+            .modal-icon { font-size: 2.6rem; }
+            .modal-title { font-size: 1.3rem; }
+            .modal-subtitle, .modal-details { font-size: 0.85rem; }
+            .modal-btns { gap: 0.75rem; }
+
+            /* Fin de partie */
+            .end-title { font-size: 1.8rem; }
+            .end-stats { grid-template-columns: 1fr; }
+            footer { padding: 2rem 1rem; }
+        }
+
+        /* Ultra mobile */
+        @media screen and (max-width: 480px) {
+            html, body { font-size: 15px; }
+            header { padding: 0.45rem 0.8rem; }
+            .logo { font-size: 1.1rem; }
+            nav a { font-size: 1rem; }
+            main { padding: 0.9rem; margin-top: 64px; }
+
+            .intro-banner { padding: 1rem; border-radius: 12px; }
+            .intro-icon { font-size: 2rem; }
+            .intro-banner h1 { font-size: 1.2rem; }
+            .intro-banner p { font-size: 0.85rem; }
+
+            .year-bar { padding: 0.75rem 1rem; border-radius: 12px; }
+            .year-display { font-size: 1.25rem; }
+            .year-dot { width: 20px; height: 20px; font-size: 0.6rem; }
+
+            .treasury-amount { font-size: 1.8rem; }
+            .treasury-label { font-size: 0.7rem; }
+
+            .btn { padding: 0.7rem 0.9rem; font-size: 0.85rem; }
+            .action-buttons { gap: 0.6rem; }
+
+            .panel { border-radius: 12px; }
+            .panel-body { padding: 0.85rem; }
+
+            .log-area { min-height: 160px; max-height: 220px; font-size: 0.78rem; }
+
+            .modal-card { padding: 1.2rem; max-width: 360px; border-radius: 16px; }
+            .modal-title { font-size: 1.2rem; }
+            .modal-cost { font-size: 1.6rem; }
+            .btn-yes, .btn-no { padding: 0.75rem; font-size: 0.95rem; }
+        }
+
+        @media screen and (max-width: 360px) {
+            html, body { font-size: 14px; }
+            .intro-banner h1 { font-size: 1.1rem; }
+            .year-display { font-size: 1.1rem; }
+            .year-dot { width: 18px; height: 18px; font-size: 0.55rem; }
+            .treasury-amount { font-size: 1.6rem; }
+            .btn { padding: 0.65rem 0.8rem; font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
