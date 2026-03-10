@@ -669,7 +669,7 @@
     <div class="intro-banner">
         <div class="intro-icon">🏭</div>
         <div>
-            <h1>Simulateur de Performance SST</h1>
+            <h1>Simulateur de performance SST</h1>
             <p>Serious Game de gestion d'entreprise sur <strong style="color:var(--blue)">8 tours (1 tour = 1 an)</strong>.
             Objectif : démontrer que la sécurité au travail est un <strong style="color:var(--blue)">levier de performance financière</strong>.
             Trésorerie initiale : 100 000 € · Revenu annuel : +50 000 €/an</p>
@@ -690,7 +690,7 @@
         <div>
             <!-- LOG -->
             <div class="panel">
-                <div class="panel-header dark">📜 Journal de Jeu</div>
+                <div class="panel-header dark">📜 Journal de jeu</div>
                 <div class="panel-body" style="padding: 1rem;">
                     <div class="log-area" id="logArea"></div>
                 </div>
@@ -698,21 +698,21 @@
 
             <!-- ACTIONS -->
             <div class="panel">
-                <div class="panel-header green">🎮 Actions du Joueur</div>
+                <div class="panel-header green">🎮 Actions du joueur</div>
                 <div class="panel-body">
                     <div class="action-buttons">
                         <button class="btn btn-action" id="btnAction" onclick="drawActionCard()">
-                            🛡️ Tirer Carte Action
+                            🛡️ Tirer carte action
                         </button>
                         <button class="btn btn-event" id="btnEvent" onclick="drawEventCard()">
-                            🎲 Tirer Carte Événement
+                            🎲 Tirer carte événement
                         </button>
                     </div>
                     <button class="btn btn-next" id="btnNext" onclick="nextYear()">
-                        ⏭️ Passer à l'Année Suivante
+                        ⏭️ Passer à l'année suivante
                     </button>
                     <button class="btn btn-reset" onclick="resetGame()">
-                        🔄 Recommencer la Partie
+                        🔄 Recommencer la partie
                     </button>
                 </div>
             </div>
@@ -739,7 +739,7 @@
 
             <!-- CARTES EN MAIN -->
             <div class="panel">
-                <div class="panel-header green">🃏 Cartes Actives (Protections)</div>
+                <div class="panel-header green">🃏 Cartes actives (Protections)</div>
                 <div class="panel-body">
                     <div class="cards-grid" id="cardsGrid">
                         <div class="empty-hand">Aucune protection active.<br>Tirez une carte Action !</div>
@@ -749,7 +749,7 @@
 
             <!-- SIMULATEUR DE PERFORMANCE -->
             <div class="panel">
-                <div class="panel-header gold">📊 Simulateur de Performance</div>
+                <div class="panel-header gold">📊 Simulateur de performance</div>
                 <div class="panel-body">
                     <div class="perf-grid">
                         <div class="perf-row">
@@ -766,7 +766,7 @@
                         </div>
                     </div>
                     <div class="roi-banner">
-                        <div class="roi-label">ROI Politique Sécurité</div>
+                        <div class="roi-label">ROI politique sécurité</div>
                         <div class="roi-number" id="roiDisplay">—</div>
                         <div style="font-size:0.75rem; color:#a7d9b8; margin-top:4px;">[Gains Évités / Investissement]</div>
                     </div>
@@ -780,7 +780,7 @@
 <div class="modal-overlay" id="modalAction">
     <div class="modal-card">
         <div class="modal-icon" id="modalActionIcon">🛡️</div>
-        <div class="modal-title" id="modalActionTitle">Carte Action</div>
+        <div class="modal-title" id="modalActionTitle">Carte action</div>
         <div class="modal-subtitle" id="modalActionSub"></div>
         <div class="modal-details" id="modalActionDetails"></div>
         <div class="modal-cost" id="modalActionCost"></div>
@@ -809,7 +809,7 @@
 <div class="modal-overlay" id="modalBonus">
     <div class="bonus-card">
         <div class="bonus-trophy">🏆</div>
-        <div class="bonus-title">Bonus de Performance !</div>
+        <div class="bonus-title">Bonus de performance !</div>
         <div class="bonus-subtitle">3 années consécutives sans accident 🎉</div>
         <div class="bonus-amount">+ 15 000 €</div>
         <p style="color:#92400e; font-size:0.9rem; margin-bottom:1.5rem;">Prime de sécurité créditée à votre trésorerie.</p>
@@ -847,7 +847,7 @@
 <footer>
     <div style="max-width: 600px; margin: 0 auto;">
         <p style="font-weight: 700; color: white;">ELYNDRIS MONITORING</p>
-        <p>Challenge INRS 2026 – Simulateur de Performance SST</p>
+        <p>Challenge INRS 2026 – Simulateur de performance SST</p>
         <div style="height: 1px; background: #334155; margin: 20px 0;"></div>
         <p style="font-size: 0.8rem;">La sécurité n'est pas un coût, c'est un investissement.</p>
     </div>
@@ -861,7 +861,7 @@
 const ACTION_CARDS = [
     {
         id: 'secourisme',
-        name: 'Formation Secourisme',
+        name: 'Formation secourisme',
         icon: '🩺',
         prob: 2,
         costPerYear: 5000,
@@ -873,7 +873,7 @@ const ACTION_CARDS = [
     },
     {
         id: 'gants',
-        name: 'Pack Gants de Protection',
+        name: 'Pack gants de protection',
         icon: '🧤',
         prob: 2,
         cost: 3000,
@@ -884,7 +884,7 @@ const ACTION_CARDS = [
     },
     {
         id: 'chaussures',
-        name: 'Pack Chaussures de Sécurité',
+        name: 'Pack chaussures de sécurité',
         icon: '👟',
         prob: 2,
         cost: 4000,
@@ -895,7 +895,7 @@ const ACTION_CARDS = [
     },
     {
         id: 'gardecorps',
-        name: 'Garde-corps & Lignes de Vie',
+        name: 'Garde-corps & lignes de vie',
         icon: '🏗️',
         prob: 1,
         cost: 10000,
@@ -906,7 +906,7 @@ const ACTION_CARDS = [
     },
     {
         id: 'ergonomie',
-        name: 'Postes Ergonomiques',
+        name: 'Postes ergonomiques',
         icon: '🪑',
         prob: 1,
         cost: 15000,
@@ -917,7 +917,7 @@ const ACTION_CARDS = [
     },
     {
         id: 'rps',
-        name: 'Audit & Plan RPS',
+        name: 'Audit & plan RPS',
         icon: '🧠',
         prob: 1,
         cost: 8000,
@@ -931,7 +931,7 @@ const ACTION_CARDS = [
 const EVENT_CARDS = [
     {
         id: 'chute',
-        name: 'Chute de Hauteur',
+        name: 'Chute de hauteur',
         icon: '🪜',
         prob: 1,
         baseCost: 80000,
@@ -941,7 +941,7 @@ const EVENT_CARDS = [
     },
     {
         id: 'ecrasement',
-        name: 'Écrasement du Pied',
+        name: 'Écrasement du pied',
         icon: '🦶',
         prob: 2,
         baseCost: 15000,
@@ -951,7 +951,7 @@ const EVENT_CARDS = [
     },
     {
         id: 'coupure',
-        name: 'Coupure / Brûlure aux Mains',
+        name: 'Coupure / brûlure aux mains',
         icon: '✂️',
         prob: 2,
         baseCost: 10000,
@@ -961,7 +961,7 @@ const EVENT_CARDS = [
     },
     {
         id: 'glissade',
-        name: 'Glissade sur Sol Mouillé',
+        name: 'Glissade sur sol mouillé',
         icon: '💧',
         prob: 1,
         baseCost: 8000,
@@ -971,7 +971,7 @@ const EVENT_CARDS = [
     },
     {
         id: 'lumbago',
-        name: 'Lumbago (Manutention)',
+        name: 'Lumbago (manutention)',
         icon: '🏋️',
         prob: 1,
         baseCost: 25000,
@@ -981,7 +981,7 @@ const EVENT_CARDS = [
     },
     {
         id: 'burnout',
-        name: 'Burn-out d\'un Manager',
+        name: 'Burn-out d\'un manager',
         icon: '🔥',
         prob: 1,
         baseCost: 45000,
@@ -991,7 +991,7 @@ const EVENT_CARDS = [
     },
     {
         id: 'collision',
-        name: 'Collision Chariot / Piéton',
+        name: 'Collision chariot / piéton',
         icon: '🚛',
         prob: 1,
         baseCost: 30000,
@@ -1001,7 +1001,7 @@ const EVENT_CARDS = [
     },
     {
         id: 'infection',
-        name: 'Infection Cutanée',
+        name: 'Infection cutanée',
         icon: '🧪',
         prob: 1,
         baseCost: 12000,
