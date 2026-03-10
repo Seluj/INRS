@@ -374,6 +374,41 @@
             nav a { font-size: 1.3rem; }
             main { margin-top: 80px; padding: 1.2rem; }
         }
+
+        /* Bouton flottant: Signaler un risque (visible sur toutes les pages) */
+        .risk-report-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 999px;
+            background: #dc2626; /* rouge d'alerte */
+            color: #fff;
+            text-decoration: none;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            box-shadow: 0 10px 25px rgba(220,38,38,0.35);
+            transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+            z-index: 1500; /* au-dessus du header/nav */
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .risk-report-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(220,38,38,0.45); background: #b91c1c; }
+        .risk-report-btn:active { transform: translateY(0); }
+        .risk-report-btn:focus { outline: 3px solid #fff; outline-offset: 2px; }
+        .risk-report-btn .icon { font-size: 1.1rem; }
+
+        @media (max-width: 480px) {
+            .risk-report-btn {
+                right: 12px;
+                bottom: 12px;
+                padding: 11px 14px;
+                font-size: 0.95rem;
+            }
+            .risk-report-btn .label { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -597,6 +632,34 @@
             }
         });
     })();
+</script>
+
+<!-- Bouton flottant pour signaler un risque -->
+<a href="mailto:?subject=Signalement%20de%20risque%20-%20INRS" class="risk-report-btn" id="riskReportBtn" aria-label="Signaler un risque par e-mail">
+    <span class="icon">✉️</span>
+    <span class="label">Signaler un risque</span>
+ </a>
+<script>
+// Pré-remplit l'email avec le titre et l'URL de la page courante
+(function() {
+    var btn = document.getElementById('riskReportBtn');
+    if (!btn) return;
+    var subject = 'Signalement de risque - INRS';
+    var bodyLines = [
+        'Bonjour,',
+        '',
+        'Je souhaite signaler un risque.',
+        '',
+        'Page : ' + document.title + ' (' + window.location.href + ')',
+        'Localisation : ',
+        'Description : ',
+        'Danger immédiat : ',
+        '',
+        'Merci.'
+    ];
+    var href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyLines.join('\n'));
+    btn.setAttribute('href', href);
+})();
 </script>
 
 </body>
